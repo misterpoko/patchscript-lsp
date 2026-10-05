@@ -15,6 +15,8 @@ type ServerCapabilities struct {
 	TextDocumentSync int `json:"textDocumentSync"`
 	SemanticTokensProvider SemanticTokensOptions `json:"semanticTokensProvider"`
 	RenameProvider bool `json:"renameProvider"`
+	DefinitionProvider bool `json:"definitionProvider"`
+	ReferencesProvider bool `json:"referencesProvider"`
 }
 
 type ServerInfo struct {
@@ -42,6 +44,8 @@ func sendInit(msg Message) {
 			Capabilities: ServerCapabilities{
 				TextDocumentSync: 1,
 				RenameProvider:   true,
+				DefinitionProvider: true,
+				ReferencesProvider: true,
 				SemanticTokensProvider: SemanticTokensOptions{
 					Legend: SemanticTokensLegend{TokenTypes: tokenTypes, TokenModifiers: tokenModifiers},
 					Full:   true,

@@ -48,6 +48,10 @@ func processMsg(msg Message) {
 		sendSemanticTokens(msg)
 	case "textDocument/rename":
 		sendRename(msg)
+	case "textDocument/definition":
+		sendDefinition(msg)
+	case "textDocument/references":
+		sendReferences(msg)
 	case "shutdown":
 		send(Response{JSONRPC: "2.0", ID: msg.ID, Result: nil})
 	case "exit":

@@ -12,6 +12,7 @@ type InitializeResult struct {
 type ServerCapabilities struct {
 	CompletionProvider CompletionOptions `json:"completionProvider"`
 	TextDocumentSync int `json:"textDocumentSync"`
+	SemanticTokensProvider SemanticTokensOptions `json:"semanticTokensProvider"`
 }
 
 type ServerInfo struct {
@@ -24,7 +25,13 @@ func sendInit(msg Message) {
 		JSONRPC: "2.0",
 		ID:      msg.ID,
 		Result: InitializeResult{
-			Capabilities: ServerCapabilities{TextDocumentSync: 1},
+			Capabilities: ServerCapabilities{
+				TextDocumentSync: 1,
+				SemanticTokensProvider: SemanticTokensOptions{
+					Legend: SemanticTokensLegend{TokenTypes: tokenTypes, TokenModifiers: tokenModifiers},
+					Full:   true,
+				},
+			},
 			ServerInfo:   ServerInfo{Name: "patchscript-lsp", Version: "0.1"},
 		},
 	})

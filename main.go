@@ -44,6 +44,8 @@ func processMsg(msg Message) {
 		didClose(msg)
 	case "textDocument/completion":
 		sendCompletion(msg)
+	case "textDocument/semanticTokens/full":
+		sendSemanticTokens(msg)
 	case "shutdown":
 		send(Response{JSONRPC: "2.0", ID: msg.ID, Result: nil})
 	case "exit":

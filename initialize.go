@@ -1,6 +1,7 @@
 package main
 
 import (
+	"encoding/json"
 	"log"
 )
 
@@ -13,6 +14,7 @@ type ServerCapabilities struct {
 	CompletionProvider CompletionOptions `json:"completionProvider"`
 	TextDocumentSync int `json:"textDocumentSync"`
 	SemanticTokensProvider SemanticTokensOptions `json:"semanticTokensProvider"`
+	RenameProvider bool `json:"renameProvider"`
 }
 
 type ServerInfo struct {
@@ -21,12 +23,25 @@ type ServerInfo struct {
 }
 
 func sendInit(msg Message) {
+	// Remember the project folder, so rename can find the other files
+	var params InitializeParams
+	if err := json.Unmarshal(msg.Params, &params); err != nil {
+		log.Println("bad initialize params: ", err)
+	}
+	if params.RootURI != "" {
+		rootPath = uriToPath(params.RootURI)
+	} else if len(params.WorkspaceFolders) > 0 {
+		rootPath = uriToPath(params.WorkspaceFolders[0].URI)
+	}
+	log.Println("project folder: ", rootPath)
+
 	err := send(Response{
 		JSONRPC: "2.0",
 		ID:      msg.ID,
 		Result: InitializeResult{
 			Capabilities: ServerCapabilities{
 				TextDocumentSync: 1,
+				RenameProvider:   true,
 				SemanticTokensProvider: SemanticTokensOptions{
 					Legend: SemanticTokensLegend{TokenTypes: tokenTypes, TokenModifiers: tokenModifiers},
 					Full:   true,

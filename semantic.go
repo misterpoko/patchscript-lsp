@@ -111,6 +111,7 @@ type SemanticTokens struct {
 // One highlighted span, with an absolute position
 type Token struct {
 	Line, Start, Length, Type, Mods int
+	Text                            string
 }
 
 func sendSemanticTokens(msg Message) {
@@ -145,7 +146,7 @@ func tokenize(text string) []Token {
 			col[i+1] = col[i] + utf16.RuneLen(c)
 		}
 		add := func(start, end, kind, mods int) {
-			tokens = append(tokens, Token{lineNum, col[start], col[end] - col[start], kind, mods})
+			tokens = append(tokens, Token{lineNum, col[start], col[end] - col[start], kind, mods, string(chars[start:end])})
 		}
 		// A comment from start to the end of the line, with TODO/FIXME/NOTE split out
 		addComment := func(start int) {

@@ -56,9 +56,9 @@ type CompletionParams struct {
 func sendCompletion(msg Message) {
 	log.Println(msg)
 	items := []CompletionItem{}
-	for _, word := range keywords {
-		items = append(items, CompletionItem{Label: word, Kind: KindKeyword})
-	}
+	// for _, word := range keywords {
+	// 	items = append(items, CompletionItem{Label: word, Kind: KindKeyword})
+	// }
 
 	// Add the names declared in the file being edited
 	var params CompletionParams

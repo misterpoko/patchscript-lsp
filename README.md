@@ -10,6 +10,8 @@ Features include
 - Rename
 - Get Definition
 - Autocomplete Suggestions
+- Paragraph indenting (gq) 
+- Warnings (Closing Paragraph warning, Invalid Method Call) 
 
 
 

@@ -38,6 +38,7 @@ func didOpen(msg Message) {
 		return
 	}
 	documents[params.TextDocument.URI] = params.TextDocument.Text
+	publishDiagnostics(params.TextDocument.URI)
 }
 
 func didChange(msg Message) {
@@ -51,6 +52,7 @@ func didChange(msg Message) {
 	if len(params.ContentChanges) > 0 {
 		documents[params.TextDocument.URI] = params.ContentChanges[len(params.ContentChanges)-1].Text
 	}
+	publishDiagnostics(params.TextDocument.URI)
 }
 
 func didClose(msg Message) {
@@ -61,4 +63,5 @@ func didClose(msg Message) {
 		return
 	}
 	delete(documents, params.TextDocument.URI)
+	publishDiagnostics(params.TextDocument.URI) // clears the file's warnings
 }

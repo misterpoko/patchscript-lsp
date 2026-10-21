@@ -102,11 +102,25 @@ func indentEdits(text string, options FormattingOptions, first, last int) []Text
 	return edits
 }
 
+// A block opener, like IF or def
+type OpenBlock struct {
+	Line   int
+	Word   string // as written, like "If"
+	Closer string // the word that closes it, like "endif"
+}
+
 // How many levels each line should be indented. Lines inside a multiline
 // comment are -1, so they're left as written.
 func indentDepths(lines []string) []int {
-	depths := make([]int, len(lines))
-	open := []string{} // the closing word of each block we're inside
+	depths, _ := scanBlocks(lines)
+	return depths
+}
+
+// Walks the blocks in a file. Returns each line's indent depth, and every
+// opener that's never closed.
+func scanBlocks(lines []string) (depths []int, unclosed []OpenBlock) {
+	depths = make([]int, len(lines))
+	open := []OpenBlock{} // the blocks we're inside, innermost last
 	inComment := false
 
 	for i, line := range lines {
@@ -133,27 +147,40 @@ func indentDepths(lines []string) []int {
 		switch {
 		case word == "elif" || word == "else":
 			// Lines up with its IF, and the lines after it are inside the IF again
-			if len(open) > 0 && open[len(open)-1] == "endif" {
+			if len(open) > 0 && open[len(open)-1].Closer == "endif" {
 				depths[i]--
 			}
+		case word == "end":
+			// END closes a hat, but inside an IF, loop or def it's a command that stops the script
+			if len(open) > 0 && open[len(open)-1].Closer == "end" {
+				open = open[:len(open)-1]
+				depths[i] = len(open)
+			}
+		case word == "start" || word == "receive" || word == "trap":
+			// Hats can't be nested, so any block still open was never closed
+			unclosed = append(unclosed, open...)
+			open = []OpenBlock{{Line: i, Word: fields[0], Closer: "end"}}
+			depths[i] = 0
 		case isCloser(open, word):
-			// Close the nearest block it ends, along with any left unclosed inside it
-			for open[len(open)-1] != word {
+			// Close the nearest block it ends. Any left open inside it were never closed.
+			for open[len(open)-1].Closer != word {
+				unclosed = append(unclosed, open[len(open)-1])
 				open = open[:len(open)-1]
 			}
 			open = open[:len(open)-1]
 			depths[i] = len(open)
 		case blockEnds[word] != "":
-			open = append(open, blockEnds[word])
+			open = append(open, OpenBlock{Line: i, Word: fields[0], Closer: blockEnds[word]})
 		}
 	}
-	return depths
+	unclosed = append(unclosed, open...)
+	return depths, unclosed
 }
 
 // Whether word closes one of the open blocks
-func isCloser(open []string, word string) bool {
-	for _, closer := range open {
-		if closer == word {
+func isCloser(open []OpenBlock, word string) bool {
+	for _, b := range open {
+		if b.Closer == word {
 			return true
 		}
 	}

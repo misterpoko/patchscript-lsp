@@ -52,6 +52,10 @@ func processMsg(msg Message) {
 		sendDefinition(msg)
 	case "textDocument/references":
 		sendReferences(msg)
+	case "textDocument/formatting":
+		sendFormatting(msg)
+	case "textDocument/rangeFormatting":
+		sendRangeFormatting(msg)
 	case "shutdown":
 		send(Response{JSONRPC: "2.0", ID: msg.ID, Result: nil})
 	case "exit":

@@ -17,6 +17,8 @@ type ServerCapabilities struct {
 	RenameProvider bool `json:"renameProvider"`
 	DefinitionProvider bool `json:"definitionProvider"`
 	ReferencesProvider bool `json:"referencesProvider"`
+	DocumentFormattingProvider bool `json:"documentFormattingProvider"`
+	DocumentRangeFormattingProvider bool `json:"documentRangeFormattingProvider"`
 }
 
 type ServerInfo struct {
@@ -46,6 +48,8 @@ func sendInit(msg Message) {
 				RenameProvider:   true,
 				DefinitionProvider: true,
 				ReferencesProvider: true,
+				DocumentFormattingProvider: true,
+				DocumentRangeFormattingProvider: true,
 				SemanticTokensProvider: SemanticTokensOptions{
 					Legend: SemanticTokensLegend{TokenTypes: tokenTypes, TokenModifiers: tokenModifiers},
 					Full:   true,
